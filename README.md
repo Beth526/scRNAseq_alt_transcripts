@@ -41,6 +41,7 @@ Uses a gaussian mixture model to find peaks (up to the number specified) of read
 1) exons: read_stops occuring inside exons. The introns are removed and exons juxtaposed, so that the peaks are detected along the coding sequence of the gene.
 2) others: read_stops occuring outside exons. This includes introns, and genomic sequence outside the gene, up to 300kbp downstream.
 
+Below is the counts and summary table. (Note that both will have gene names in the alt transcript names not ensembl ids, the screenshot for counts is old)
 ![counts table head](https://github.com/Beth526/scRNAseq_alt_transcripts/blob/main/images/counts_table.png)
 
 ![summary table head](https://github.com/Beth526/scRNAseq_alt_transcripts/blob/main/images/summary_table.png)
