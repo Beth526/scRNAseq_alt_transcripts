@@ -6,6 +6,17 @@ Created on Wed Feb 17 11:39:47 2021
 @author: beth
 """
 
+#Load required packages
+import os, subprocess, h5py, re
+import pandas as pd
+import numpy as np
+from sklearn.mixture import BayesianGaussianMixture
+from collections import defaultdict
+import matplotlib.pyplot as plt
+#also requires samtools
+
+#Add directories to path so that samtools is in path
+os.environ['PATH'] = '/opt/anaconda3/bin:/opt/anaconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
 
 
 def get_top_genes_and_barcodes_list(file_name, n_genes=100):
@@ -106,7 +117,7 @@ def gtf_top_genes(top_genes, gtf_file):
     return df
 
 
-def samtools_view(df, filtered_barcodes, bam_file): 
+def bam_top_genes(df, filtered_barcodes, bam_file): 
     '''
     Considering gene strand, finds all reads that start between the first exon position and the last. 
     Finds read stop positions and only retains furthest 3' read-stop for each UMI group.
@@ -138,7 +149,7 @@ def samtools_view(df, filtered_barcodes, bam_file):
     for i in range(len(df)):
         
         if df.loc[i,'strand'] == "+":
-            print(i)
+            #print(i)
             #Get the minumum and maximum exon position
             chrom = df.loc[i,'chrom']
             start = min(df.loc[i, 'exons'])
@@ -242,7 +253,7 @@ def samtools_view(df, filtered_barcodes, bam_file):
     return df
 
 
-def seperate_into_peaks(df2, num_peaks_exon = 3, num_peaks_other = 3):
+def count_and_summarize_peaks(df2, num_peaks_exon = 3, num_peaks_other = 3):
     '''
     Uses a gaussian mixture model to find peaks up to the number specified of read_stops for 
         exons: read_stops occuring inside exons. The introns are removed and exons juxtaposed, so that
@@ -252,7 +263,7 @@ def seperate_into_peaks(df2, num_peaks_exon = 3, num_peaks_other = 3):
     Parameters
     ----------
     df2 : dataframe
-        dataframe after samtools view function
+        dataframe after bam_top_genes() function with exons, strand, readstops, barcodes
     num_peaks_exon : int, optional
         maximum number of peaks GMM model looks for in exons. The default is 3.
     num_peaks_other : int, optional
@@ -274,7 +285,7 @@ def seperate_into_peaks(df2, num_peaks_exon = 3, num_peaks_other = 3):
     df = df.reset_index()
     
     for i in range(len(df)):
-        print(i)
+        #print(i)
         if df.loc[i,'strand'] == "+":
             start = min(df.loc[i,'exons'])
             exons = list(map(lambda x: x - start, df.loc[i,'exons']))
@@ -352,17 +363,16 @@ def seperate_into_peaks(df2, num_peaks_exon = 3, num_peaks_other = 3):
 
 def select_alt_transcripts(final_counts, final_summary, min_per_gene = 2, max_within_gene_correlation = 1, count_greater_than_std = True):
     '''
-    Filter the counts and summaries dataframes returned from seperate_into_peaks()
-    Remove peaks if less than 2 were found for a gene (a single alt transcript will be highly correlated with parent gene counts)
-    Remove peaks if counts was less than standard deviation (wide sparse peaks are more likely to be noise)
-    Can remove peaks if minimmum intra gene correlation was above a certain level (not informative)
+    Filter the counts and summary dataframes. Can remove peaks/alt transcripts if less than 2 were found for a gene (a single alt transcript will be highly correlated with parent gene counts), 
+    remove alt transcript if counts was less than standard deviation (wide sparse peaks are more likely to be noise) and 
+    remove alt transcript if minimmum intra gene correlation was above a certain level (not informative).
     
     Parameters
     ----------
     final_counts : dataframe
-        counts dataframe from seperate_into_peaks()
+        counts dataframe from count_and_summarize_peaks()
     final_summary : dataframe
-        summary dataframe from seperate_into_peaks()
+        summary dataframe from count_and_summarize_peaks()
     min_per_gene : integer, optional
         Remove genes if less than this number of alt transcripts were found. The default is 2.
     max_within_gene_correlation : float between -1 and 1, optional
@@ -459,18 +469,15 @@ def min_correlations_by_gene(counts, summaries):
 
 def graph_exons(gene_name, df, num_peaks = 3, num_bins = 100):
     '''
-    Produce 3 histogram graphs for read_stops inside exons before and after
-    assignment by GMM algorithm. Note that the GMM model is non-deterministic 
-    so sometimes the results will difer. Running this function repeatedly with
-    a different num_peaks may give an idea of the best num_peaks parameter for 
-    the seperate_into_peaks() function. 
+    Produce 3 histogram graphs for read_stops inside exons before and after assignment by GMM algorithm. Note that the GMM model is non-deterministic 
+        so sometimes the results will difer. Running this function repeatedly with a different num_peaks may give an idea of the best num_peaks parameter for \ the count_and_summarize_peaks() function. 
 
     Parameters
     ----------
     gene_name : string
         gene id/symbol for gene of interest
     df : dataframe
-        the dataframe returned after samtools_view()
+        the dataframe returned after bam_top_genes()
     num_peaks : integer, optional
         maximum number of peaks for the GMM model. The default is 3.
     num_bins : integer, optional
@@ -546,18 +553,16 @@ def graph_exons(gene_name, df, num_peaks = 3, num_bins = 100):
 
 def graph_others(gene_name,df,num_peaks = 3, num_bins = 100):
     '''
-    Produce 3 histogram graphs for read_stops outside exons before and after
-    assignment by GMM algorithm. Note that the GMM model is non-deterministic 
-    so sometimes the results will difer. Running this function repeatedly with
-    a different num_peaks may give an idea of the best num_peaks parameter for 
-    the seperate_into_peaks() function. 
+    Produce 3 histogram graphs for read_stops outside exons before and after assignment by GMM algorithm. Note that the GMM model is non-deterministic 
+    so sometimes the results will difer. Running this function repeatedly with a different num_peaks may give an idea of the best num_peaks parameter for 
+    the count_and_summarize_peaks() function. 
 
     Parameters
     ----------
     gene_name : string
         gene id/symbol for gene of interest
     df : dataframe
-        the dataframe returned after samtools_view()
+        the dataframe returned after bam_top_genes()
     num_peaks : integer, optional
         maximum number of peaks for the GMM model. The default is 3.
     num_bins : integer, optional
@@ -740,11 +745,12 @@ if __name__ == "__main__":
     from sklearn.mixture import BayesianGaussianMixture
     from collections import defaultdict
     import matplotlib.pyplot as plt
+    #also samtools
     
     #Add a lot of directories to path so that samtools is in path
     os.environ['PATH'] = '/opt/anaconda3/bin:/opt/anaconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
 
-    
+   
 
 
 
