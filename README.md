@@ -62,9 +62,12 @@ graph_exons(gene_name, df, num_peaks = 3, num_bins = 100)
 Produce 3 histogram graphs for read_stops inside exons before and after assignment by GMM algorithm. Note that the GMM model is non-deterministic so sometimes the results will difer. Running this function repeatedly with a different num_peaks may give an idea of the best num_peaks parameter for the seperate_into_peaks() function.
 
 3 graphs
-        1) read_stops inside exons coding sequence histogram
-        2) read_stops inside exons genomic location histogram
-        3) num_peaks histograms for each of the peaks found 
+1) read_stops outside exons genomic location histogram
+2) read_stops outside exons genomic location histogram, x-axis limited to gene 
+3) num_peaks histograms for each of the peaks found 
+
+![example](https://github.com/Beth526/scRNAseq_alt_transcripts/blob/main/images/GNLY.jpg)
+
 
 ```{python}
  graph_others(gene_name, df, num_peaks = 3, num_bins = 100)
@@ -72,9 +75,9 @@ Produce 3 histogram graphs for read_stops inside exons before and after assignme
 Produce 3 histogram graphs for read_stops outside exons before and after assignment by GMM algorithm. 
 
 3 graphs
-        1) read_stops outside exons genomic location histogram
-        2) read_stops outside exons genomic location histogram, x-axis limited to gene 
-        3) num_peaks histograms for each of the peaks found 
+1) read_stops outside exons genomic location histogram
+2) read_stops outside exons genomic location histogram, x-axis limited to gene 
+3) num_peaks histograms for each of the peaks found 
 
 ```{python}
 new_h5(counts, summaries, h5_dset_file, new_dset_file)
