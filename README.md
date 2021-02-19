@@ -10,7 +10,7 @@ Note: CellRanger v4 uses STAR to align the reads, for a read to be counted for a
 The functions are in the sc_altpolya.py file that can be used as a module
 
 ```{python}
-filtered_barcodes, top_genes = get_top_genes_and_barcodes_list(h5_file_name, n_genes=100)
+top_genes, filtered_barcodes = get_top_genes_and_barcodes_list(h5_file_name, n_genes=100)
 ```
 Gets the top genes by counts and the filtered barcodes list from the 10X filtered .h5 file. Probably the first 100 will be mostly mitochondrial and ribosomal proteins.
 
