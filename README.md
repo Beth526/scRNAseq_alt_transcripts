@@ -7,7 +7,7 @@ Test data used: 10x Chromium 10,000 PBMC dataset (Single Cell 3’ v.3, CellRang
 
 Note: CellRanger v4 uses STAR to align the reads, for a read to be counted for a gene it must overlap an exon by 50% AND be consistant with an annotated transcript. CellRanger v5 has a new feature to count reads from introns and all reads from the correct strand across the length of the gene. CellRanger bam files also contain corrected UMI and barcodes.
 
-The functions are in the sc_altpolya.py file 
+The functions are in the sc_altpolya.py file that can be used as a module
 
 ```{python}
 filtered_barcodes, top_genes = get_top_genes_and_barcodes_list(h5_file_name, n_genes=100)
