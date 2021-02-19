@@ -15,7 +15,7 @@ import sc_altpolya as scapa
 ```{python}
 top_genes, filtered_barcodes = scapa.get_top_genes_and_barcodes_list(h5_file_name, n_genes=100)
 ```
-Gets the top genes by counts and the filtered barcodes list from the 10X filtered .h5 file. Probably the first 100 will be mostly mitochondrial and ribosomal proteins.
+Gets the top genes by counts and the filtered barcodes list from the 10X filtered .h5 file. Probably the first 100 will be mostly mitochondrial and ribosomal proteins, so I would change n_genes to a higher number, and then discard the first 100 or so, or specifically remove housekeeper genes.
 
 ![top genes head](https://github.com/Beth526/scRNAseq_alt_transcripts/blob/main/images/top_gene_table.png)
 
