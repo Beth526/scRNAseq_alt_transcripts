@@ -7,6 +7,9 @@ Test data used: 10x Chromium 10,000 PBMC dataset (Single Cell 3’ v.3, CellRang
 
 Note: CellRanger v4 uses STAR to align the reads, for a read to be counted for a gene it must overlap an exon by 50% AND be consistant with an annotated transcript. CellRanger v5 has a new feature to count reads from introns and all reads from the correct strand across the length of the gene. CellRanger bam files also contain corrected UMI and barcodes.
 
+A putative alterate transcript marker discovered:
+![RAB7A_alt](https://github.com/Beth526/scRNAseq_alt_transcripts/blob/main/images/RAB7A_others_2.jpg)
+
 The functions are in the sc_altpolya.py file that can be used as a module
 ```{python}
 import sc_altpolya as scapa
